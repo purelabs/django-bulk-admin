@@ -1,0 +1,46 @@
+{% extends 'admin/change_form.html' %}
+
+{% load i18n admin_urls %}
+
+{% if not is_popup %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+&rsaquo; {% if has_change_permission %}<a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %}
+&rsaquo; {% if bulk %}{% trans 'Bulk add' %} {{ opts.verbose_name_plural }}{% else %}{% if add %}{% trans 'Add' %} {{ opts.verbose_name }}{% else %}{{ original|truncatewords:"18" }}{% endif %}{% endif %}
+</div>
+{% endblock %}
+{% endif %}
+
+{% block object-tools %}
+    {% trans "Files are being uploaded..." as submitting_message %}
+    {% if bulk %}
+        <ul class="object-tools">
+            {% block bulk-object-tools-items %}
+                {% for field in bulk_upload_fields %}
+                    <li>
+                        <a href="#" class="bulk-upload" data-field="{{ field.name }}">{% blocktrans with verbose_name=field.verbose_name %}Bulk upload {{ verbose_name }}{% endblocktrans %}</a>
+                    </li>
+                {% endfor %}
+            {% endblock %}
+        </ul>
+        <script>
+            (function($) {
+                'use strict';
+
+                $('.bulk-upload').bulkUpload({
+                    prefix: '{{ bulk_formset_prefix }}',
+                    csrfToken: '{{ csrf_token }}',
+                    isPopupName: '{{ is_popup_var }}',
+                    isPopup: {% if is_popup %}true{% else %}false{% endif %},
+                    toFieldName: '{{ to_field_var }}',
+                    toField: '{{ to_field | default:'' }}',
+                    submittingMessage: '{{ submitting_message  | escapejs }}',
+                });
+            })(django.jQuery);
+        </script>
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endblock %}

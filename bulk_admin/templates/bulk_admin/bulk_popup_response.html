@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <title></title>
+      {{ media }}
+  </head>
+  <body>
+    <script type="text/javascript">
+        dismissAddRelatedObjectPopup(
+            window.opener,
+            [{% for value in values %}"{{ value|escapejs }}"{% if not forloop.last %}, {% endif %}{% endfor %}],
+            [{% for obj in objects %}"{{ obj|escapejs }}"{% if not forloop.last %}, {% endif %}{% endfor %}]
+        );
+    </script>
+  </body>
+</html>

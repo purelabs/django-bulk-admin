@@ -1,0 +1,2 @@
+Django==1.8.4
+django-sortedm2m==1.0.2

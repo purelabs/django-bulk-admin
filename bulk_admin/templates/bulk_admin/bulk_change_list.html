@@ -1,0 +1,13 @@
+{% extends 'admin/change_list.html' %}
+
+{% load i18n admin_urls %}
+
+{% block object-tools-items %}
+    <li>
+        {% url cl.opts|admin_urlname:'bulk' as bulk_url %}
+        <a href="{% add_preserved_filters bulk_url is_popup to_field %}" class="addlink">
+            {% blocktrans with cl.opts.verbose_name_plural as name %}Bulk add {{ name }}{% endblocktrans %}
+        </a>
+    </li>
+    {{ block.super }}
+{% endblock %}
