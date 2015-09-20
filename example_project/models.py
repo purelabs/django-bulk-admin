@@ -1,5 +1,4 @@
 from django.db import models
-from sortedm2m.fields import SortedManyToManyField
 
 
 class Image(models.Model):
@@ -12,7 +11,7 @@ class Image(models.Model):
 
 class Project(models.Model):
     title = models.CharField(max_length=255, unique=True)
-    images = SortedManyToManyField(Image, blank=True)
+    images = models.ManyToManyField(Image, blank=True)
 
     def __unicode__(self):
         return self.title
