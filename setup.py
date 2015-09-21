@@ -19,7 +19,7 @@ setup(
     author='Ruben Grill',
     author_email='ruben.grill@gmail.com',
     install_requires=[
-        'Django>=1.8.0',
+        'Django>=1.7',
     ],
     classifiers=[
         'Environment :: Web Environment',
@@ -29,7 +29,6 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.2',

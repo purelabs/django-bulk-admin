@@ -1,0 +1,2 @@
+test:
+	./manage.py test
