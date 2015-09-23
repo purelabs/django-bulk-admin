@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from collections import OrderedDict
 from django import forms
 from django.contrib import admin, messages
@@ -19,6 +21,7 @@ from django.utils.text import get_text_list
 from django.utils.translation import ugettext as _, ugettext_lazy
 from functools import partial, update_wrapper
 
+import django
 import re
 import uuid
 
@@ -170,7 +173,7 @@ class BulkModelAdmin(admin.ModelAdmin):
             media = media + inline_formset.media
 
         context = dict(
-            self.admin_site.each_context(request),
+            self.admin_site.each_context(request) if django.VERSION >= (1, 8) else self.admin_site.each_context(),
             bulk=True,
             bulk_formset_prefix=prefix,
             bulk_upload_fields=self.get_bulk_upload_fields(request),
@@ -250,7 +253,7 @@ class BulkModelAdmin(admin.ModelAdmin):
         files = request.FILES
         force_continue = False
 
-        for field_name_prefixed, field_files in files.lists():
+        for field_name_prefixed, field_files in list(files.lists()):
             match = _RE_BULK_FILE.match(field_name_prefixed)
 
             if match and match.group(1) == prefix:
@@ -278,7 +281,9 @@ class BulkModelAdmin(admin.ModelAdmin):
         if self.bulk_generate_unique_values is not None:
             return self.bulk_generate_unique_values
 
-        return list(field.name for field in self.model._meta.get_fields() if not getattr(field, 'blank', True))
+        fields = self.model._meta.get_fields() if django.VERSION >= (1, 8) else self.model._meta.fields
+
+        return list(field.name for field in fields if not getattr(field, 'blank', True))
 
     def get_actions(self, request):
         if IS_POPUP_VAR in request.GET:
@@ -296,7 +301,9 @@ class BulkModelAdmin(admin.ModelAdmin):
         if self.bulk_upload_fields is not None:
             return [opts.get_field(field) for field in self.bulk_upload_fields]
 
-        return [field for field in opts.get_fields() if hasattr(field, 'upload_to')]
+        fields = opts.get_fields() if django.VERSION >= (1, 8) else opts.fields
+
+        return [field for field in fields if hasattr(field, 'upload_to')]
 
     @property
     def media(self):

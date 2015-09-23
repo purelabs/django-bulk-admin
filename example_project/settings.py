@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 """
 Django settings for example_project project.
 
@@ -9,6 +11,8 @@ https://docs.djangoproject.com/en/1.8/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.8/ref/settings/
 """
+
+import django
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
@@ -49,10 +53,12 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
 )
 
 ROOT_URLCONF = 'example_project.urls'
+
+if django.VERSION < (1, 8):
+    TEMPLATE_DEBUG = True
 
 TEMPLATES = [
     {

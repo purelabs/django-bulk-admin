@@ -1,10 +1,14 @@
+from __future__ import unicode_literals
+
 from django.test import TestCase
 from django.contrib.auth.models import Permission, User
 from django.core.urlresolvers import reverse
 from django.utils import six
-from io import StringIO
+from io import BytesIO
 
 from example_project.models import Image
+
+import sys
 
 
 class BulkTests(TestCase):
@@ -60,6 +64,13 @@ class BulkTests(TestCase):
         payload.update(extra)
 
         return payload
+
+    def assertRedirects(self, response, expected_url):
+        # Don't fetch redirect response in python 3.2, as sessionid cookie gets lost due to a bug in cookie parsing.
+        # Happens when messages are used and messages cookie comes before sessionid cookie and contains square brackets.
+        # See https://bugs.python.org/issue22931
+        fetch_redirect_response = False if sys.version_info >= (3, 2) and sys.version_info < (3, 3) else True
+        super(BulkTests, self).assertRedirects(response, expected_url, fetch_redirect_response=fetch_redirect_response)
 
     def assertImagesEqual(self, qs, images, ordered=True, msg=None):
         def transform_to_dict(obj):
@@ -247,7 +258,11 @@ class BulkTests(TestCase):
         self.assertImagesEqual(self.getTestQueryset(), images)
 
     def test_bulk_upload(self):
-        with StringIO(u'data1') as data1, StringIO(u'data2') as data2:
+        with BytesIO(b'data1') as data1, BytesIO(b'data2') as data2:
+            # Django < 1.8 requires *name* attribute
+            data1.name = 'data1.txt'
+            data2.name = 'data2.txt'
+
             payload = self.bulk_upload_payload('data', [data1, data2])
             response = self.client.post(self.bulk_url, payload)
             images = list(Image.objects.all())

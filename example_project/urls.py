@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 """example_project URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
