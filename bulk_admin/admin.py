@@ -13,6 +13,7 @@ from django.core.urlresolvers import reverse
 from django.db import router, transaction
 from django.forms.formsets import DELETION_FIELD_NAME, INITIAL_FORM_COUNT, TOTAL_FORM_COUNT, ManagementForm
 from django.forms.models import modelform_defines_fields, modelformset_factory, BaseModelFormSet
+from django.forms.utils import ErrorList
 from django.http import HttpResponseRedirect
 from django.template.response import SimpleTemplateResponse
 from django.utils import six
@@ -171,6 +172,13 @@ class BulkModelAdmin(admin.ModelAdmin):
         for inline_formset in inline_formsets:
             media = media + inline_formset.media
 
+        errors = ErrorList()
+
+        if formset.is_bound:
+            errors.extend(formset.non_form_errors())
+            for formset_errors in formset.errors:
+                errors.extend(list(six.itervalues(formset_errors)))
+
         context = dict(
             self.admin_site.each_context(request) if django.VERSION >= (1, 8) else self.admin_site.each_context(),
             bulk=True,
@@ -182,8 +190,7 @@ class BulkModelAdmin(admin.ModelAdmin):
             to_field=to_field,
             media=media,
             inline_admin_formsets=inline_formsets,
-            # TODO errors (helpers.AdminErrorList(form, formsets))
-            errors=None,
+            errors=errors,
             preserved_filters=self.get_preserved_filters(request),
         )
 
