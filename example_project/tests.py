@@ -1,12 +1,14 @@
 from __future__ import unicode_literals
 
 from django.test import TestCase
+from django.contrib.admin.sites import site as admin_site
 from django.contrib.auth.models import Permission, User
 from django.core.urlresolvers import reverse
 from django.utils import six
 from io import BytesIO
 
-from example_project.models import Image
+from bulk_admin.admin import BulkInlineModelAdmin
+from example_project.models import Image, Project
 
 import sys
 
@@ -273,3 +275,28 @@ class BulkTests(TestCase):
             for image, data in zip(images, [data1, data2]):
                 with image.data as image_data:
                     self.assertEqual(image_data.read(), data.getvalue())
+
+    def test_bulk_inline_model_admin_without_model(self):
+        class ImageInline(BulkInlineModelAdmin):
+            pass
+
+        ImageInline(Image, admin_site)
+
+    def test_bulk_inline_model_admin_with_same_model(self):
+        class ImageInline(BulkInlineModelAdmin):
+            model = Image
+
+        ImageInline(Image, admin_site)
+
+    def test_bulk_inline_model_admin_with_different_model(self):
+        class ImageInline(BulkInlineModelAdmin):
+            model = Project
+
+        error = (
+            'ImageInline with model Project may only be used as bulk_inline '
+            'within a ModelAdmin having the same model, '
+            'but was used inside a ModelAdmin with model Image'
+        )
+
+        with self.assertRaisesRegexp(Exception, error):
+            ImageInline(Image, admin_site)

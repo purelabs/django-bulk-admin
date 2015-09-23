@@ -335,14 +335,20 @@ class BulkModelAdmin(admin.ModelAdmin):
     bulk_edit_action.short_description = ugettext_lazy('Bulk edit')
 
 
-# TODO check has_change_permission (parent_model is used there)
 class BulkInlineModelAdmin(InlineModelAdmin):
 
     formset = BaseModelFormSet
 
     def __init__(self, parent_model, admin_site):
-        # TODO add check if self.model is set, and not equal parent_model
-        self.model = parent_model
+        self.model = self.model if self.model is not None else parent_model
+
+        if self.model != parent_model:
+            raise Exception(
+                '{} with model {} may only be used as bulk_inline '
+                'within a ModelAdmin having the same model, '
+                'but was used inside a ModelAdmin with model {}'
+                .format(self.__class__.__name__, self.model.__name__, parent_model.__name__)
+            )
 
         super(BulkInlineModelAdmin, self).__init__(parent_model=None, admin_site=admin_site)
 
