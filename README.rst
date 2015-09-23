@@ -68,6 +68,12 @@ For setting custom values or to support non string fields that are required, ove
             return super(ImageAdmin, self).generate_data_for_file(request, field_name, file, index)
 
 
+=======
+Caveats
+=======
+
+- No admin logs are generated for bulk operations
+
 ================
 Customize Inline
 ================

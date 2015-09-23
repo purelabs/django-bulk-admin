@@ -137,7 +137,6 @@ class BulkModelAdmin(admin.ModelAdmin):
 
         if request.method == 'POST':
             if formset.is_valid():
-                # TODO log add / change
                 self.save_formset(request, form=None, formset=formset, change=False)
 
                 if continue_requested or force_continue:
