@@ -89,8 +89,6 @@ class BulkModelAdmin(admin.ModelAdmin):
         model = self.model
         opts = model._meta
 
-        # TODO add proper permission handling: if deleted row, ignore the delete; if no add permission, set max_num for formset; if no change permission, don't include them in queryset, and remove them after adding them
-
         continue_requested = request.POST.get('_continue', request.GET.get('_continue'))
         force_continue = False
         inline = self.get_bulk_inline(request)
