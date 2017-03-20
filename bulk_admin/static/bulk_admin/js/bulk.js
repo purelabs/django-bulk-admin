@@ -71,6 +71,10 @@
                 }
 
                 $totalFormCountInput.attr('value', this.files.length);
+
+                // HTML spec updates require forms to be attached to document 
+                // body before submission.
+                $(document.body).append($form);
                 $form.submit();
 
                 submitted = true;
