@@ -6,7 +6,7 @@ Django bulk admin enables you to bulk add, bulk edit, bulk upload and bulk selec
 
 View the screenshots below to get an idea of how django bulk admin does look like.
 
-Requires Django >= 1.7.
+Requires Django >= 1.11.
 
 
 ===========
