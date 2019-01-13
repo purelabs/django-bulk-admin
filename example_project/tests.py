@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django.test import TestCase
 from django.contrib.admin.sites import site as admin_site
 from django.contrib.auth.models import Permission, User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils import six
 from io import BytesIO
 
