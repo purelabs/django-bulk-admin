@@ -6,4 +6,3 @@ media/
 .python-version
 .tox
 django_bulk_admin.egg-info/
-.idea/
