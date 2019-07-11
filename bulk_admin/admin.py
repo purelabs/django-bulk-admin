@@ -177,21 +177,21 @@ class BulkModelAdmin(admin.ModelAdmin):
             for formset_errors in formset.errors:
                 errors.extend(list(six.itervalues(formset_errors)))
 
-        context = dict(
-            self.admin_site.each_context(request) if django.VERSION >= (1, 8) else self.admin_site.each_context(),
-            bulk=True,
-            bulk_formset_prefix=prefix,
-            bulk_upload_fields=self.get_bulk_upload_fields(request),
-            title=_('Bulk add %s') % force_text(opts.verbose_name_plural),
-            is_popup=(IS_POPUP_VAR in request.POST or
+        context =  self.admin_site.each_context(request)
+        context.update({
+            'bulk': True,
+            'bulk_formset_prefix': prefix,
+            'bulk_upload_fields': self.get_bulk_upload_fields(request),
+            'title': _('Bulk add %s') % force_text(opts.verbose_name_plural),
+            'is_popup': (IS_POPUP_VAR in request.POST or
                       IS_POPUP_VAR in request.GET),
-            to_field=to_field,
-            media=media,
-            inline_admin_formsets=inline_formsets,
-            errors=errors,
-            preserved_filters=self.get_preserved_filters(request),
-        )
-
+            'to_field': to_field,
+            'media': media,
+            'inline_admin_formsets': inline_formsets,
+            'errors': errors,
+            'preserved_filters': self.get_preserved_filters(request),
+            'adminform': admin.helpers.AdminForm(ManagementForm(), [], {}),
+            })
         context.update(extra_context or {})
 
         return self.render_change_form(request, context, add=True, change=False, obj=None, form_url=form_url)
