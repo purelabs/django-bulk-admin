@@ -15,7 +15,6 @@ from django.forms.utils import ErrorList
 from django.http import HttpResponseRedirect
 from django.template.response import SimpleTemplateResponse
 from django.urls import reverse
-from django.utils import six
 from django.utils.encoding import force_text
 from django.utils.text import get_text_list
 from django.utils.translation import ugettext as _, ugettext_lazy
@@ -174,7 +173,7 @@ class BulkModelAdmin(admin.ModelAdmin):
         if formset.is_bound:
             errors.extend(formset.non_form_errors())
             for formset_errors in formset.errors:
-                errors.extend(list(six.itervalues(formset_errors)))
+                errors.extend(list(iter(formset_errors.values())))
 
         context =  self.admin_site.each_context(request)
         context.update({
@@ -272,7 +271,7 @@ class BulkModelAdmin(admin.ModelAdmin):
                         post.update({
                             '{}-{}-{}'.format(prefix, index, name): value
                             for name, value
-                            in six.iteritems(form_data_for_file)
+                            in iter(form_data_for_file.items())
                         })
 
         return post, files, force_continue
