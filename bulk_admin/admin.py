@@ -17,7 +17,7 @@ from django.template.response import SimpleTemplateResponse
 from django.urls import reverse
 from django.utils.encoding import force_text
 from django.utils.text import get_text_list
-from django.utils.translation import ugettext as _, ugettext_lazy
+from django.utils.translation import gettext as _, gettext_lazy
 from functools import partial, update_wrapper
 
 import django
@@ -317,7 +317,7 @@ class BulkModelAdmin(admin.ModelAdmin):
     def select_related_action(self, request, queryset):
         return self.response_bulk_popup(request, queryset)
 
-    select_related_action.short_description = ugettext_lazy('Select')
+    select_related_action.short_description = gettext_lazy('Select')
 
     def bulk_edit_action(self, request, queryset):
         model = self.model
@@ -328,7 +328,7 @@ class BulkModelAdmin(admin.ModelAdmin):
 
         return HttpResponseRedirect('{}?pks={}'.format(redirect_url, ','.join(selected)))
 
-    bulk_edit_action.short_description = ugettext_lazy('Bulk edit')
+    bulk_edit_action.short_description = gettext_lazy('Bulk edit')
 
 
 class BulkInlineModelAdmin(InlineModelAdmin):
