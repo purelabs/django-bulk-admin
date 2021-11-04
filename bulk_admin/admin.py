@@ -323,7 +323,7 @@ class BulkModelAdmin(admin.ModelAdmin):
         model = self.model
         opts = model._meta
 
-        selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
+        selected = queryset.values_list('pk', flat=True)
         redirect_url = reverse('admin:%s_%s_bulk' % (opts.app_label, opts.model_name), current_app=self.admin_site.name)
 
         return HttpResponseRedirect('{}?pks={}'.format(redirect_url, ','.join(selected)))
