@@ -63,7 +63,7 @@ class BulkModelAdmin(admin.ModelAdmin):
         ]
 
     def get_urls(self):
-        from django.conf.urls import url
+        from django.conf.urls import re_path
 
         def wrap(view):
             def wrapper(*args, **kwargs):
@@ -73,7 +73,7 @@ class BulkModelAdmin(admin.ModelAdmin):
         info = self.model._meta.app_label, self.model._meta.model_name
 
         urlpatterns = super(BulkModelAdmin, self).get_urls()
-        urlpatterns.insert(0, url(r'^bulk/$', wrap(self.bulk_view), name='%s_%s_bulk' % info))
+        urlpatterns.insert(0, re_path(r'^bulk/$', wrap(self.bulk_view), name='%s_%s_bulk' % info))
 
         return urlpatterns
 
