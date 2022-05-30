@@ -71,6 +71,7 @@
                 }
 
                 $totalFormCountInput.attr('value', this.files.length);
+                $form.appendTo($('body'));
                 $form.submit();
 
                 submitted = true;
