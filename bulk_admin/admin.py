@@ -310,7 +310,7 @@ class BulkModelAdmin(admin.ModelAdmin):
     @property
     def media(self):
         media = super(BulkModelAdmin, self).media
-        media.add_js([static('bulk_admin/js/bulk.js')])
+        media._js.extend([static('bulk_admin/js/bulk.js')])
 
         return media
 
