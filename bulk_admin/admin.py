@@ -5,7 +5,6 @@ from django import forms
 from django.contrib import admin, messages
 from django.contrib.admin.exceptions import DisallowedModelAdminToField
 from django.contrib.admin.options import IS_POPUP_VAR, InlineModelAdmin, TO_FIELD_VAR, csrf_protect_m
-from django.contrib.admin.templatetags.admin_static import static
 from django.contrib.admin.templatetags.admin_urls import add_preserved_filters
 from django.contrib.admin.utils import NestedObjects, flatten_fieldsets
 from django.core.exceptions import PermissionDenied, ValidationError
@@ -16,10 +15,10 @@ from django.forms.utils import ErrorList
 from django.http import HttpResponseRedirect
 from django.template.response import SimpleTemplateResponse
 from django.urls import reverse
-from django.utils import six
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.text import get_text_list
-from django.utils.translation import ugettext as _, ugettext_lazy
+from django.utils.translation import gettext as _, gettext_lazy
+from django.conf.urls.static import static
 from functools import partial, update_wrapper
 
 import django
@@ -65,7 +64,7 @@ class BulkModelAdmin(admin.ModelAdmin):
         ]
 
     def get_urls(self):
-        from django.conf.urls import url
+        from django.urls import re_path
 
         def wrap(view):
             def wrapper(*args, **kwargs):
@@ -75,7 +74,7 @@ class BulkModelAdmin(admin.ModelAdmin):
         info = self.model._meta.app_label, self.model._meta.model_name
 
         urlpatterns = super(BulkModelAdmin, self).get_urls()
-        urlpatterns.insert(0, url(r'^bulk/$', wrap(self.bulk_view), name='%s_%s_bulk' % info))
+        urlpatterns.insert(0, re_path(r'^bulk/$', wrap(self.bulk_view), name='%s_%s_bulk' % info))
 
         return urlpatterns
 
@@ -158,7 +157,7 @@ class BulkModelAdmin(admin.ModelAdmin):
 
                     formset = formset_class(**formset_params)
 
-                    msg = _('The %s were bulk added successfully. You may edit them again below.') % (force_text(opts.verbose_name_plural),)
+                    msg = _('The %s were bulk added successfully. You may edit them again below.') % (force_str(opts.verbose_name_plural),)
                     self.message_user(request, msg, messages.SUCCESS)
 
                 else:
@@ -175,23 +174,23 @@ class BulkModelAdmin(admin.ModelAdmin):
         if formset.is_bound:
             errors.extend(formset.non_form_errors())
             for formset_errors in formset.errors:
-                errors.extend(list(six.itervalues(formset_errors)))
+                errors.extend(list(iter(formset_errors.values())))
 
-        context = dict(
-            self.admin_site.each_context(request) if django.VERSION >= (1, 8) else self.admin_site.each_context(),
-            bulk=True,
-            bulk_formset_prefix=prefix,
-            bulk_upload_fields=self.get_bulk_upload_fields(request),
-            title=_('Bulk add %s') % force_text(opts.verbose_name_plural),
-            is_popup=(IS_POPUP_VAR in request.POST or
+        context =  self.admin_site.each_context(request)
+        context.update({
+            'bulk': True,
+            'bulk_formset_prefix': prefix,
+            'bulk_upload_fields': self.get_bulk_upload_fields(request),
+            'title': _('Bulk add %s') % force_str(opts.verbose_name_plural),
+            'is_popup': (IS_POPUP_VAR in request.POST or
                       IS_POPUP_VAR in request.GET),
-            to_field=to_field,
-            media=media,
-            inline_admin_formsets=inline_formsets,
-            errors=errors,
-            preserved_filters=self.get_preserved_filters(request),
-        )
-
+            'to_field': to_field,
+            'media': media,
+            'inline_admin_formsets': inline_formsets,
+            'errors': errors,
+            'preserved_filters': self.get_preserved_filters(request),
+            'adminform': admin.helpers.AdminForm(ManagementForm(), [], {}),
+            })
         context.update(extra_context or {})
 
         return self.render_change_form(request, context, add=True, change=False, obj=None, form_url=form_url)
@@ -201,8 +200,8 @@ class BulkModelAdmin(admin.ModelAdmin):
         opts = model._meta
         preserved_filters = self.get_preserved_filters(request)
         msg_dict = {
-            'name': force_text(opts.verbose_name),
-            'name_plural': force_text(opts.verbose_name_plural),
+            'name': force_str(opts.verbose_name),
+            'name_plural': force_str(opts.verbose_name_plural),
         }
 
         if IS_POPUP_VAR in request.POST:
@@ -273,7 +272,7 @@ class BulkModelAdmin(admin.ModelAdmin):
                         post.update({
                             '{}-{}-{}'.format(prefix, index, name): value
                             for name, value
-                            in six.iteritems(form_data_for_file)
+                            in iter(form_data_for_file.items())
                         })
 
         return post, files, force_continue
@@ -312,25 +311,25 @@ class BulkModelAdmin(admin.ModelAdmin):
     @property
     def media(self):
         media = super(BulkModelAdmin, self).media
-        media.add_js([static('bulk_admin/js/bulk.js')])
+        media._js.extend([static('bulk_admin/js/bulk.js')])
 
         return media
 
     def select_related_action(self, request, queryset):
         return self.response_bulk_popup(request, queryset)
 
-    select_related_action.short_description = ugettext_lazy('Select')
+    select_related_action.short_description = gettext_lazy('Select')
 
     def bulk_edit_action(self, request, queryset):
         model = self.model
         opts = model._meta
 
-        selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
+        selected = queryset.values_list('pk', flat=True)
         redirect_url = reverse('admin:%s_%s_bulk' % (opts.app_label, opts.model_name), current_app=self.admin_site.name)
 
         return HttpResponseRedirect('{}?pks={}'.format(redirect_url, ','.join(selected)))
 
-    bulk_edit_action.short_description = ugettext_lazy('Bulk edit')
+    bulk_edit_action.short_description = gettext_lazy('Bulk edit')
 
 
 class BulkInlineModelAdmin(InlineModelAdmin):

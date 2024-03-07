@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.1.2
+-----
+* Bump up version
+* Fix "Select all" issue
+
 0.1.1
 -----
 
